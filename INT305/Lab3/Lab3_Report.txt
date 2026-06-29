@@ -1,0 +1,82 @@
+
+INT305 - Lab 3 Report
+Strengthening System Security on Linux Servers
+Student: Damian Ozimede Patrick
+Course: INT305
+GitHub: github.com/damianozimede/Kali-Linux-Security-Labs
+Date: June 25, 2026
+
+INTRODUCTION
+This lab focuses on strengthening the security of a Linux server running on Kali Linux
+(hostname: pastor, IP: 192.168.5.139). The exercises covered user creation policies,
+Access Control Lists, sudo privilege management, SSH hardening, Two-Factor Authentication,
+password policies, and system auditing with auditd.
+
+SECTION 1: CONFIGURING ADDUSER.CONF
+The adduser.conf file controls default behaviour when new user accounts are created.
+Changes made:
+- DHOME changed to /mnt/users
+- FIRST_UID set to 2000, LAST_UID to 2999
+- FIRST_GID set to 3000, LAST_GID to 3999
+- USERGROUPS set to no
+- DSHELL changed to /bin/sh
+- welcome.txt added to /etc/skel
+Testing confirmed testuser2 was created with UID 2000, home at /mnt/users/testuser2,
+and shell /bin/sh.
+
+SECTION 2: ACCESS CONTROL LISTS (ACLs)
+A shared project folder was created at /projects/team_project.
+Alice was granted rwx, Bob r-x, and Charlie rw- permissions.
+The sticky bit was applied to prevent unauthorised deletion.
+Testing confirmed:
+- Alice could read and write successfully
+- Bob could read but not write (Permission denied)
+- Charlie could write but not delete (Operation not permitted)
+Default ACLs were set so new files inherit the correct permissions automatically.
+
+SECTION 3: SUDO AND PRIVILEGE MANAGEMENT
+John was given full admin privileges via the sudo group.
+Mary was restricted to apt update and apt upgrade only.
+Paul was restricted to restarting apache2 and mysql only.
+Testing confirmed each user could only perform their authorised commands.
+Sudo activity was monitored via /var/log/auth.log.
+John was removed from the sudo group after testing.
+
+SECTION 4: SECURING NETWORK SERVICES AND PORTS
+Open ports were listed using sudo ss -tuln.
+Apache was stopped and disabled, removing ports 80 and 443 from the network.
+SSH was moved from port 22 to port 2222.
+System was updated and unattended-upgrades was configured for automatic security patches.
+
+SECTION 5: TWO-FACTOR AUTHENTICATION (2FA)
+Google Authenticator PAM module was installed and configured for the legion user.
+The common-auth PAM file was updated to require the verification code at login.
+SSH was configured to use keyboard-interactive authentication.
+Testing confirmed the system prompted for a verification code before the password.
+
+SECTION 6: SSH KEY-BASED AUTHENTICATION
+A 4096-bit RSA key pair was generated as root.
+The public key was copied to the legion user using ssh-copy-id.
+PasswordAuthentication was disabled and PubkeyAuthentication enabled.
+Testing confirmed passwordless login worked with the key.
+Root login was confirmed blocked via PermitRootLogin no.
+
+SECTION 7: LOGIN.DEFS CONFIGURATION
+Password policies were updated:
+- PASS_MAX_DAYS set to 90
+- PASS_MIN_DAYS set to 7
+- PASS_WARN_AGE set to 14
+Testing with testuser3 confirmed the policies were enforced correctly.
+An early password change attempt was blocked with the expected error message.
+
+SECTION 8: SYSTEM AUDITING WITH AUDITD
+auditd was installed, started, and enabled on boot.
+Audit rules were added to monitor /var/log/auth.log and /etc/passwd.
+Testing confirmed audit logs were generated for login activity and file modifications.
+After a system reboot, auditd was confirmed still running and logs were intact.
+
+CONCLUSION
+This lab demonstrated a layered approach to Linux server security. Each technique
+complements the others to create a robust security posture. The key lesson is that
+security is not a single measure but a combination of overlapping controls that together
+significantly reduce the attack surface and ensure all activity is traceable.
